@@ -1,1 +1,0 @@
-java -Xmx1024M -Xms1024M -Dj3d.implicitAntialiasing=true -Dj3d.optimizeForSpace=false -Dsun.java3d.opengl=true -XX:+UseFastAccessorMethods -XX:+AggressiveOpts -XX:+DisableExplicitGC -XX:+UseAdaptiveGCBoundary -XX:MaxGCPauseMillis=500 -XX:SurvivorRatio=16 -XX:+UseParallelGC -XX:UseSSE=3 -XX:ParallelGCThreads=4 -jar ~/.minecraft/Minecraft.jar
