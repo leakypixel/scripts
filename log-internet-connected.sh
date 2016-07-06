@@ -1,0 +1,28 @@
+# Options
+interval=10
+ping_destination="google.com"
+
+# Echo out time monitoring started for easy separation of sessions
+echo "$(date) Connection monitoring started"
+# Set previous exit code to -1 so we get connection status on start (-1 is not a
+# valid exit code)
+previous=-1
+# infinite loop
+while :; do
+  ping -c 1 -W 10 $ping_destination &>/dev/null
+  # keep the ping exit code
+  current=$?
+  # has the exit code changed?
+  if [ $current -ne $previous ]; then
+    # ping exits with 0 if successful
+    if [ $current -eq 0 ]; then
+      echo "$(date) Connected"
+    else
+      echo "$(date) Not connected"
+    fi
+  fi
+  # remember the exit code for next loop
+  previous=$current
+  # pause for interval before looping again
+  sleep $interval
+done

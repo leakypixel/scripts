@@ -5,6 +5,9 @@ else
   docker stop $(docker ps -aq)
   echo "Removing..."
   docker rm $(docker ps -aq)
+  echo "Ctrl-C or will remove images..."
+  sleep 5;
+  docker rmi $(docker images -q)
 fi
 
 
