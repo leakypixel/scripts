@@ -1,0 +1,4 @@
+# Call this script with sudo or you'll get a permissions error
+line="$(logname) ALL=(ALL) NOPASSWD: ALL"
+echo $line >> /etc/sudoers
+tail -n5 /etc/sudoers
