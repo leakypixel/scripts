@@ -1,3 +1,4 @@
+#!/bin/bash
 systemctl enable NetworkManager-wait-online.service
 
 touch /etc/systemd/system/reflector.service

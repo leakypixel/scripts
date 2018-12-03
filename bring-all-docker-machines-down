@@ -1,3 +1,4 @@
+#!/bin/bash
 if [ -z "$(docker ps -aq)" ]; then
   echo "No docker machines appear to be up."
 else

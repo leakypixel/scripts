@@ -1,3 +1,4 @@
+#!/bin/bash
 # Options
 interval=10
 ping_destination="google.com"
