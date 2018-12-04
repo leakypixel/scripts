@@ -1,0 +1,49 @@
+#!/usr/bin/env node
+const https = require("https");
+const fs = require("fs");
+const streamTransform = require("stream").Transform;
+const path = require("path");
+
+const config = {
+  wallpapersDir: ".config/wallpaper",
+  wallpaperAPI: "https://www.reddit.com/r/earthporn/top/.json?limit=10&t=month",
+};
+
+const getFilename = (url) => url.substring(url.lastIndexOf("/") + 1 );
+
+const getImageUrls = (data) => JSON.parse(data).data.children.map(post => post.data.url);
+
+function download(url) {
+  https.request(url, function(response) {
+    var data = new streamTransform();
+
+    response.on("data", function(chunk) {
+      data.push(chunk);
+    });
+
+    data.pipe(fs.createWriteStream(
+      path.join(process.env.HOME, config.wallpapersDir, getFilename(url))
+    ));
+
+    response.on("end", function() {
+      console.log("Downloaded:", url);
+    });
+  }).end().on("error", (err) => {
+    console.log("Error: " + err.message);
+  });
+}
+
+https.get(config.wallpaperAPI, (resp) => {
+  let data = "";
+
+  resp.on("data", (chunk) => {
+    data += chunk;
+  });
+
+  resp.on("end", () => {
+    getImageUrls(data).forEach(download);
+  });
+
+}).on("error", (err) => {
+  console.log("Error: " + err.message);
+});
