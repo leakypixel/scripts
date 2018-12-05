@@ -4,29 +4,40 @@ const fs = require("fs");
 const streamTransform = require("stream").Transform;
 const path = require("path");
 
+const filenameUrlOffset = 1;
+const wallpaperDirArgPosition = 2;
+
 const config = {
   wallpapersDir: ".config/wallpaper",
   wallpaperAPI: "https://www.reddit.com/r/earthporn/top/.json?limit=10&t=month",
 };
 
-const getFilename = (url) => url.substring(url.lastIndexOf("/") + 1 );
+const wallpapersDir = process.argv[wallpaperDirArgPosition] ?
+  process.argv[wallpaperDirArgPosition] : path.join(process.env.HOME, config.wallpapersDir);
+
+const getFilename = (url) => url.substring(url.lastIndexOf("/") + filenameUrlOffset );
 
 const getImageUrls = (data) => JSON.parse(data).data.children.map(post => post.data.url);
 
 function download(url) {
   https.request(url, function(response) {
-    var data = new streamTransform();
+    const data = new streamTransform();
+    let writeError = null;
 
     response.on("data", function(chunk) {
       data.push(chunk);
     });
 
     data.pipe(fs.createWriteStream(
-      path.join(process.env.HOME, config.wallpapersDir, getFilename(url))
-    ));
+      path.join(wallpapersDir, getFilename(url))
+    ).on("error", (err) => {
+      writeError = err;
+    }));
 
-    response.on("end", function() {
-      console.log("Downloaded:", url);
+    response.on("end", function(err) {
+      writeError ?
+        console.log("Error downloading", url, "to", path.join(wallpapersDir, getFilename(url)), ":", writeError.message) :
+        console.log("Downloaded", url, "to", path.join(wallpapersDir, getFilename(url)));
     });
   }).end().on("error", (err) => {
     console.log("Error: " + err.message);
