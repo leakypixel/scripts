@@ -1,0 +1,46 @@
+#!/bin/bash
+md_dir="$(sed 's/\([^\/]\)$/\1\//g' <<< ${1-"."})"
+escaped_md_dir=$(echo "${md_dir}" | sed "s/[!@#$%^&*\/\.-]/\\\&/g")
+dir_name=$(basename $(realpath "$md_dir"))
+dir_display_name=$(sed "s/[_-]/ /g; s/\(^.\)/\U&/g" <<< "$dir_name")  
+echo "Writing index for: $md_dir ($dir_display_name)"
+
+echo "# $dir_display_name" >> "$md_dir/index.md"
+
+
+# First, markdown files
+md_files_count=$(\
+  find "$md_dir" -maxdepth 1 -type f -name '*.md' -not -name "index.md" \
+  | wc -l\
+)
+
+if [ "$md_files_count" -gt 0 ]
+then
+  echo -e "\n## Pages" >>  "$md_dir/index.md"
+  echo "Found pages:"
+  for file in $(find "$md_dir" -maxdepth 1 -type f -name '*.md' -not -name "index.md" ); do
+    page_name=$(sed "s/$escaped_md_dir//g; s/\.md//g" <<< "$file")
+    display_name=$(sed "s/[_-]/ /g; s/\(^.\)/\U&/g" <<< "$page_name")  
+    echo "$display_name ($file)"
+    echo "### [$display_name]($page_name)"  >> "$md_dir/index.md"
+  done
+fi
+
+# and then dirs
+subdircount=$(\
+  find "$md_dir" -type f -name 'index.md' -not -path "${md_dir}index.md" \
+  | wc -l\
+)
+
+if [ "$subdircount" -gt 0 ]
+then
+  echo -e "\n## Sections" >>  "$md_dir/index.md"
+  echo "Found sub indexes:"
+  for file in $(find "$md_dir" -maxdepth 2 -type f -name 'index.md' -not -path "${md_dir}index.md"); do
+    section_index=$(sed "s/$escaped_md_dir//g; s/\.md//g" <<< "$file")
+    display_name=$(dirname "$section_index" | sed "s/\///g; s/[_-]/ /g; s/\(^.\)/\U&/g")  
+    echo "$display_name ($file)"
+    echo "### [$display_name]($section_index)"  >> "$md_dir/index.md"
+  done
+fi
+
