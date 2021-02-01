@@ -5,7 +5,7 @@ dir_name=$(basename $(realpath "$md_dir"))
 dir_display_name=$(sed "s/[_-]/ /g; s/\(^.\)/\U&/g" <<< "$dir_name")  
 echo "Writing index for: $md_dir ($dir_display_name)"
 
-echo "# $dir_display_name" >> "$md_dir/index.md"
+echo "# $dir_display_name" > "$md_dir/index.md"
 
 
 # First, markdown files
